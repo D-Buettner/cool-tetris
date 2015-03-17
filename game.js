@@ -25,10 +25,6 @@ function Game(height, width, level) {
   console.log(this.height, this.width);
 }
 
-Game.prototype.step = function() {
-
-};
-
 Game.prototype.toString = function() {
   var resultString =  "";
   this.board.forEach(function(row) {
@@ -45,14 +41,16 @@ Game.prototype.toString = function() {
   writeToWindow(resultString);
 };
 
-Game.prototype.step = function() {
-  var objRef = this;
+Game.prototype.step = function(objRef) {
+  // objRef needed to keep this binding the same.
+  if (!objRef) {
+    var objRef = this;
+  }
   console.log("step function");
-  console.log(this.height);
   // Go through rows backwards to avoid moving blocks more than once.
-  for (var row = this.height - 1; row >= 0; row--) {
+  for (var row = objRef.height - 1; row >= 0; row--) {
     console.log('going through row: ', row);
-    this.board[row].forEach(function(element, column) {
+    objRef.board[row].forEach(function(element, column) {
       if (element !== ".") {
         console.log("col index is: ", column, "col is: ", element);
         objRef.board[row + 1][column] = element;
@@ -62,6 +60,8 @@ Game.prototype.step = function() {
     });
   }
   objRef.toString();
+  console.log("creating new timer..");
+  var nextStep = setInterval(this.step, 1000, objRef);
 };
 
 Game.prototype.newShape = function() {
@@ -128,7 +128,4 @@ function run(height, width, level) {
   var currentGame = new Game(height, width, level);
   currentGame.newShape();
   currentGame.step();
-  currentGame.step();
-  currentGame.step();
-
 }
