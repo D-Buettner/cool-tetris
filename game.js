@@ -60,6 +60,7 @@ Game.prototype.step = function(objRef) {
 
   objRef.toString();
   console.log("step concluding")
+  objRef.checkRows();
   var nextStep = setInterval(this.step, 1000, objRef);
 };
 
@@ -86,7 +87,7 @@ Game.prototype.newShape = function() {
   }
 };
 
-Game.prototype.collisionDetect = function(row, column) {
+/*Game.prototype.collisionDetect = function(row, column) {
   console.log("collisionDetect called!!!");
   var collision = false;
   console.log(this.board);
@@ -110,7 +111,46 @@ Game.prototype.collisionDetect = function(row, column) {
     }
   }, this);
   return collision;
-}
+}*/
+
+Game.prototype.checkRows = function() {
+  console.log("calling check rows..");
+  var fullRow = true;
+  var fullIndex;
+  // Check for cleared rows.
+
+  this.board.forEach(function(row, rowIndex){
+    console.log(row);
+    fullRow = true;
+
+    row.forEach(function(col){
+      if (col !== "#") {
+        console.log("not full");
+        fullRow = false;
+      }
+    }, this);
+
+    if (fullRow === true) {
+
+      //this.board[rowIndex].forEach(function(col, colIndex) {
+      //  this.setPoint(rowIndex, colIndex, ".");
+      //}, this);
+  console.log(this.board);
+      this.board.splice(rowIndex, 1);
+      var newRow = [];
+      for (var i = 0; i < this.width; i++){
+        newRow.push(".");
+      }
+      this.board.unshift(newRow);
+      console.log(this.board);
+    }
+
+  }, this);
+
+  if (fullRow === true) {
+    this.clearedLines += 1;
+  }
+};
 
 Game.prototype.getPoint = function(row, col) {
   if (!this.board[row]) {
@@ -121,6 +161,7 @@ Game.prototype.getPoint = function(row, col) {
 };
 
 Game.prototype.setPoint = function(row, col, item) {
+  console.log("row col item", row, col, item);
   this.board[row][col] = item;
 };
 
@@ -140,6 +181,7 @@ Game.prototype.getActiveBlockLocations =  function() {
 
 Game.prototype.transformBlocks = function(blockList, f) {
   console.log("transforming blocks");
+  console.log
   // Wipe previous location
   blockList.forEach(function(block){
     this.setPoint(block.row, block.col, ".");
