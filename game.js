@@ -22,6 +22,7 @@ function Game(height, width, level) {
   this.board = createBoard(height, width);
   this.shapeList = shapes;
   this.gotShape = false;
+  this.clearedLines = 0;
 }
 
 Game.prototype.toString = function() {
@@ -49,44 +50,23 @@ Game.prototype.step = function(objRef) {
     var objRef = this;
   }
   // Maybe refactor this
-
-  var moveQueue = [];
   if (objRef.gotShape === false) {
     objRef.newShape();
   }
 
   console.log("step function");
   // Go through rows backwards to avoid moving blocks more than once.
-  for (var row = objRef.height - 1; row >= 0; row--) {
-    objRef.board[row].forEach(function(element, column) {
-      // Check square below.
-      if (element === "o" || element === "O") {
-        console.log('element found');
-        var nextRow = row + 1;
-        // Run collision detect then move if needed
-        var didCollide = objRef.collisionDetect(nextRow, column);
-        if (!didCollide) {
-          objRef.setPoint(nextRow, column, element);
-          objRef.setPoint(row, column, ".");
-        }
-      };
-    });
-  }
+  objRef.moveDown();
+
   objRef.toString();
   console.log("step concluding")
   var nextStep = setInterval(this.step, 1000, objRef);
 };
 
-Game.prototype.convertShape = function() {
+var convertShape = function(block) {
   console.log("converting  shape");
-  this.board.forEach(function(row, rowIndex) {
-    row.forEach(function(element, elIndex) {
-      if (element === "o" || element === "O") {
-        this.setPoint(rowIndex, elIndex, "#");
-        this.gotShape = false;
-      }
-    }, this);
-  }, this);
+  block.blockType = "#";
+  return block;
 }
 
 Game.prototype.newShape = function() {
@@ -141,7 +121,6 @@ Game.prototype.getPoint = function(row, col) {
 };
 
 Game.prototype.setPoint = function(row, col, item) {
-  console.log("setting item at..", row, col);
   this.board[row][col] = item;
 };
 
@@ -171,12 +150,11 @@ Game.prototype.transformBlocks = function(blockList, f) {
   blockList.forEach(function(block){
     console.log("TRANSFORRMMM", this);
     this.setPoint(block.row, block.col, block.blockType);
-    console.log(this.board);
   }, this);
 }
 
 
-Game.prototype.move = function(direction) {
+Game.prototype.moveSideways = function(direction) {
   console.log("moving", direction);
 
   if (direction === "left") {
@@ -189,7 +167,7 @@ Game.prototype.move = function(direction) {
 
   // Check if legal move
   var isLegal = true
-  blockList.forEach(function(block){
+  blockList.forEach(function(block) {
     console.log("checking legality");
     var adjacentChar = this.getPoint(block.row, block.col + transform);
     if (adjacentChar === undefined || adjacentChar === "#") {
@@ -203,7 +181,7 @@ Game.prototype.move = function(direction) {
   }
 
   this.transformBlocks(blockList, function(block) {
-      console.log("this", block);
+
       block.col += transform;
       console.log(block);
       return block;
@@ -211,8 +189,37 @@ Game.prototype.move = function(direction) {
   this.toString();
 };
 
+Game.prototype.moveDown = function() {
+  var blockList = this.getActiveBlockLocations();
+  console.log(blockList);
+  // Block at end of list should be lowest.
+  if (this.getPoint(blockList[blockList.length -1].row + 1, 0) === undefined) {
+    this.transformBlocks(blockList, convertShape);
+    this.gotShape = false;
+    return;
+  }
+  blockList.forEach(function(block){
+    console.log("looking for blocks", block);
+    var charBelow = this.getPoint(block.row + 1, block.col);
+    if (charBelow === "#") {
+      this.transformBlocks(blockList, convertShape);
+      this.gotShape = false;
+      return;
+    }
+  }, this);
+  if (!this.gotShape) {
+    return;
+  }
+
+  this.transformBlocks(blockList, function(block){
+    block.row += 1;
+    return block;
+  });
+  this.toString();
+};
+
 Game.prototype.rotateClockwise = function() {};
-Game.prototype.drop = function() {};
+
 
 function createBoard(height, width) {
 
@@ -248,21 +255,18 @@ function addKeyboardControl(GameObject) {
   document.addEventListener("keydown", function(event){
     switch (event.keyCode) {
       case 37:
-        GameObject.move("left");
+        GameObject.moveSideways("left");
         break;
       case 39:
-        GameObject.move("right");
+        GameObject.moveSideways("right");
         break;
       case 38:
         GameObject.rotateClockwise();
         break;
       case 40:
-        GameObject.drop();
+        GameObject.moveDown();
         break;
-
     }
-
-
   });
 }
 
