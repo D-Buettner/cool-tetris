@@ -41,6 +41,8 @@ Game.prototype.toString = function() {
     });
     resultString += '<br>';
   });
+  resultString += '<br><br> Lines Cleared: ';
+  resultString += this.clearedLines;
   writeToWindow(resultString);
 };
 
@@ -49,6 +51,7 @@ Game.prototype.step = function(objRef) {
   if (!objRef) {
     var objRef = this;
   }
+    objRef.checkRows();
   // Maybe refactor this
   if (objRef.gotShape === false) {
     objRef.newShape();
@@ -60,7 +63,7 @@ Game.prototype.step = function(objRef) {
 
   objRef.toString();
   console.log("step concluding")
-  objRef.checkRows();
+
   var nextStep = setInterval(this.step, 1000, objRef);
 };
 
@@ -193,6 +196,7 @@ Game.prototype.transformBlocks = function(blockList, f) {
     console.log("TRANSFORRMMM", this);
     this.setPoint(block.row, block.col, block.blockType);
   }, this);
+  this.checkRows();
 }
 
 
