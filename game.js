@@ -23,6 +23,7 @@ function Game(height, width, level) {
   this.shapeList = shapes;
   this.gotShape = false;
   this.clearedLines = 0;
+  this.score = 0;
   this.currentShape = "";
 }
 
@@ -118,9 +119,11 @@ Game.prototype.newShape = function() {
 };
 
 Game.prototype.checkRows = function() {
+  // Check rows and apply scoring.
   console.log("calling check rows..");
   var fullRow = true;
-  var fullIndex;
+  var rowMulti = 0;
+  var rowsCleared = false;
   // Check for cleared rows.
 
   this.board.forEach(function(row, rowIndex){
@@ -138,14 +141,15 @@ Game.prototype.checkRows = function() {
       for (var i = 0; i < this.width; i++){
         newRow.push(".");
       }
+      rowsCleared = true;
       this.board.unshift(newRow);
-      this.clearedLines += 1;
+      rowMulti += 1;
     }
 
   }, this);
-
-  if (fullRow === true) {
-
+  if (rowsCleared) {
+    this.clearedLines += rowMulti;
+    this.score += rowMulti * 10 * rowMulti;
   }
 };
 
@@ -287,8 +291,8 @@ Game.prototype.toString = function() {
     });
     resultString += '<br>';
   });
-  resultString += '<br><br> Lines Cleared: ';
-  resultString += this.clearedLines;
+  resultString += '<br><br> Score: ';
+  resultString += this.score;
   writeToWindow(resultString);
 };
 
