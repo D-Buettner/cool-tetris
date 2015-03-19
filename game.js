@@ -26,26 +26,53 @@ function Game(height, width, level) {
   this.currentShape = "";
 }
 
-Game.prototype.toString = function() {
-  console.log("toString called");
-  var resultString =  "";
-  // row and column measured from top-left.
-  this.board.forEach(function(row) {
-    row.forEach(function(col){
-      if (col[0] === ".") {
-        resultString += ".";
-      } else if (col[0] === "o" || col[0] === "O") {
-        resultString += "o";
-      } else if (col[0] === "#") {
-        resultString += "#";
-      }
-    });
-    resultString += '<br>';
-  });
-  resultString += '<br><br> Lines Cleared: ';
-  resultString += this.clearedLines;
-  writeToWindow(resultString);
+Game.prototype.getPoint = function(row, col) {
+  if (!this.board[row]) {
+    return undefined;
+  }
+  var itemAtCoordinates = this.board[row][col];
+  return itemAtCoordinates;
 };
+
+Game.prototype.setPoint = function(row, col, item) {
+  console.log("set point");
+  console.log(item);
+  console.log("setting point..", row, col, item);
+  this.board[row][col] = item;
+};
+
+Game.prototype.getActiveBlockLocations =  function() {
+  // Returns a list of row col location pairs for active blocks
+  var blocks = [];
+  var bCount = 0
+  this.board.some(function(row, rowIndex) {
+    row.forEach(function(col, colIndex) {
+      if (col === "o" || col === "O") {
+        blocks.push({row:rowIndex, col:colIndex, blockType:col});
+        bCount += 1;
+      }  
+    });
+    // counter + some loop allow f to return once blocks are located.
+    return bCount === 4;
+  });
+  return blocks;
+};
+
+Game.prototype.transformBlocks = function(blockList, f) {
+  console.log("transforming blocks");
+  // Wipe previous location
+  blockList.forEach(function(block){
+    this.setPoint(block.row, block.col, ".");
+  }, this);
+
+  blockList = blockList.map(f);
+  console.log("new blocklist", blockList);
+  blockList.forEach(function(block){
+    console.log()
+    this.setPoint(block.row, block.col, block.blockType);
+  }, this);
+  this.checkRows();
+}
 
 Game.prototype.step = function(objRef) {
   // set objRef to pass to interval function.
@@ -122,54 +149,6 @@ Game.prototype.checkRows = function() {
   }
 };
 
-Game.prototype.getPoint = function(row, col) {
-  if (!this.board[row]) {
-    return undefined;
-  }
-  var itemAtCoordinates = this.board[row][col];
-  return itemAtCoordinates;
-};
-
-Game.prototype.setPoint = function(row, col, item) {
-  this.board[row][col] = item;
-};
-
-Game.prototype.getActiveBlockLocations =  function() {
-  // Returns a list of row col location pairs for active blocks
-  var blocks = [];
-  var bCount = 0
-  this.board.some(function(row, rowIndex) {
-    console.log('searching', rowIndex);
-    row.forEach(function(col, colIndex) {
-      if (col === "o" || col === "O") {
-        blocks.push({row:rowIndex, col:colIndex, blockType:col});
-        bCount += 1;
-        console.log(bCount);
-      }  
-    });
-    // counter + some loop allow f to return once blocks are located.
-    if (bCount === 4) {
-      return true;
-    }
-  });
-  return blocks;
-};
-
-Game.prototype.transformBlocks = function(blockList, f) {
-  console.log("transforming blocks");
-  // Wipe previous location
-  blockList.forEach(function(block){
-    this.setPoint(block.row, block.col, ".");
-  }, this);
-
-  blockList = blockList.map(f);
-
-  blockList.forEach(function(block){
-    this.setPoint(block.row, block.col, block.blockType);
-  }, this);
-  this.checkRows();
-}
-
 Game.prototype.moveSideways = function(direction) {
   if (direction === "left") {
     var transform = -1;
@@ -210,7 +189,7 @@ Game.prototype.moveDown = function() {
     this.gotShape = false;
     return;
   }
-  blockList.forEach(function(block){
+  blockList.forEach(function(block) {
     var charBelow = this.getPoint(block.row + 1, block.col);
     if (charBelow === "#") {
       this.transformBlocks(blockList, convertShape);
@@ -229,8 +208,83 @@ Game.prototype.moveDown = function() {
   this.toString();
 };
 
-Game.prototype.rotateClockwise = function() {
+Game.prototype.rotate = function(direction) {
+  console.log("CALLING ROTATE");
+  console.log(this.currentShape);
+  var rotate = "";
+  switch (this.currentShape) {
+    case "i":
+      rotate = "i"
+      break
+    case "o":
+      return;
+    case "t":
+    case "s":
+    case "z":
+    case "j":
+    case "l":
+      break;
+  }
+  var pivotIndex;
+  var pivotYRow;
+  var pivotXCol;
 
+  var blockList = this.getActiveBlockLocations();
+  blockList.forEach(function(block, blockIndex) {
+    console.log(block, block.blockType)
+    if (block.blockType === "O") {
+      pivotIndex = blockIndex;
+      pivotYRow = block.row;
+      pivotXCol = block.col;
+    }
+  });
+  console.log("piv index", pivotIndex);
+
+  // Get  differences from pivot
+  blockList.forEach(function(block, blockIndex){
+    if (blockIndex !== pivotIndex) {
+      console.log(block);
+      var rowDifference = block.row - blockList[pivotIndex].row;
+      console.log("row y difference from pivot", rowDifference);
+      var colDifference = block.col - blockList[pivotIndex].col;
+      console.log("column x difference from pivot", colDifference);
+      block.xColTransform = pivotXCol + rowDifference;
+      block.yRowTransform = pivotYRow - colDifference;
+      console.log("block.xColTransform", block.xColTransform);
+      console.log("block.yRowTransform", block.yRowTransform);
+    }
+  });
+  this.transformBlocks(blockList, function(block){
+    if (block.xColTransform) {
+    block.row = block.yRowTransform;
+    block.col = block.xColTransform;
+  }
+    return block;
+  });
+    // append xy transforms to block object
+};
+
+Game.prototype.toString = function() {
+  console.log("toString called");
+  var resultString =  "";
+  // row and column measured from top-left.
+  this.board.forEach(function(row) {
+    row.forEach(function(col){
+      if (col[0] === ".") {
+        resultString += ".";
+      } else if (col[0] === "o" /*|| col[0] === "O"*/) {
+        resultString += "o";
+      } else if (col[0] === "#") {
+        resultString += "#";
+      } else if (col[0] === "O") {
+        resultString += "*";
+      }
+    });
+    resultString += '<br>';
+  });
+  resultString += '<br><br> Lines Cleared: ';
+  resultString += this.clearedLines;
+  writeToWindow(resultString);
 };
 
 function createBoard(height, width) {
@@ -273,7 +327,7 @@ function addKeyboardControl(GameObject) {
         GameObject.moveSideways("right");
         break;
       case 38:
-        GameObject.rotateClockwise();
+        GameObject.rotate("clockwise");
         break;
       case 40:
         GameObject.moveDown();
