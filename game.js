@@ -23,6 +23,7 @@ function Game(height, width, level) {
   this.shapeList = shapes;
   this.gotShape = false;
   this.clearedLines = 0;
+  this.currentShape = "";
 }
 
 Game.prototype.toString = function() {
@@ -57,12 +58,10 @@ Game.prototype.step = function(objRef) {
     objRef.newShape();
   }
 
-  console.log("step function");
-  // Go through rows backwards to avoid moving blocks more than once.
+  console.log("step");
   objRef.moveDown();
 
   objRef.toString();
-  console.log("step concluding")
 
   var nextStep = setInterval(this.step, 1000, objRef);
 };
@@ -77,6 +76,7 @@ Game.prototype.newShape = function() {
   // Select shape
   console.log("New shape");
   var type = randomShape();
+  this.currentShape = type;
   for (var i = 0; i < this.shapeList.length; i++) {
     if (this.shapeList[i].name === type) {
       // Write shape to page from stored coordinate pairs (x=[0], y=[1])
@@ -90,32 +90,6 @@ Game.prototype.newShape = function() {
   }
 };
 
-/*Game.prototype.collisionDetect = function(row, column) {
-  console.log("collisionDetect called!!!");
-  var collision = false;
-  console.log(this.board);
-  if (this.getPoint(row, column) === undefined) {
-    console.log("hit the bottom");
-    this.convertShape();
-    return true;
-  }
-  this.board[row].forEach(function(col, colIndex) {
-
-    if (this.getPoint(row, colIndex) === "#") {
-      // Check cell above (redo this)
-      console.log
-      if (this.getPoint(row - 1, colIndex) !== ".") {
-        console.log(this.getPoint(row-1, colIndex), "above");
-        console.log(this.getPoint(row, colIndex), "below");
-        console.log("hit shape");
-        this.convertShape();
-        collision = true;
-      }
-    }
-  }, this);
-  return collision;
-}*/
-
 Game.prototype.checkRows = function() {
   console.log("calling check rows..");
   var fullRow = true;
@@ -123,35 +97,28 @@ Game.prototype.checkRows = function() {
   // Check for cleared rows.
 
   this.board.forEach(function(row, rowIndex){
-    console.log(row);
     fullRow = true;
 
     row.forEach(function(col){
       if (col !== "#") {
-        console.log("not full");
         fullRow = false;
       }
     }, this);
 
     if (fullRow === true) {
-
-      //this.board[rowIndex].forEach(function(col, colIndex) {
-      //  this.setPoint(rowIndex, colIndex, ".");
-      //}, this);
-  console.log(this.board);
       this.board.splice(rowIndex, 1);
       var newRow = [];
       for (var i = 0; i < this.width; i++){
         newRow.push(".");
       }
       this.board.unshift(newRow);
-      console.log(this.board);
+      this.clearedLines += 1;
     }
 
   }, this);
 
   if (fullRow === true) {
-    this.clearedLines += 1;
+
   }
 };
 
@@ -164,27 +131,32 @@ Game.prototype.getPoint = function(row, col) {
 };
 
 Game.prototype.setPoint = function(row, col, item) {
-  console.log("row col item", row, col, item);
   this.board[row][col] = item;
 };
 
 Game.prototype.getActiveBlockLocations =  function() {
   // Returns a list of row col location pairs for active blocks
   var blocks = [];
-  this.board.forEach(function(row, rowIndex) {
+  var bCount = 0
+  this.board.some(function(row, rowIndex) {
+    console.log('searching', rowIndex);
     row.forEach(function(col, colIndex) {
       if (col === "o" || col === "O") {
-        console.log(colIndex)
         blocks.push({row:rowIndex, col:colIndex, blockType:col});
-      }
-    }, this);
+        bCount += 1;
+        console.log(bCount);
+      }  
+    });
+    // counter + some loop allow f to return once blocks are located.
+    if (bCount === 4) {
+      return true;
+    }
   });
   return blocks;
 };
 
 Game.prototype.transformBlocks = function(blockList, f) {
   console.log("transforming blocks");
-  console.log
   // Wipe previous location
   blockList.forEach(function(block){
     this.setPoint(block.row, block.col, ".");
@@ -193,16 +165,12 @@ Game.prototype.transformBlocks = function(blockList, f) {
   blockList = blockList.map(f);
 
   blockList.forEach(function(block){
-    console.log("TRANSFORRMMM", this);
     this.setPoint(block.row, block.col, block.blockType);
   }, this);
   this.checkRows();
 }
 
-
 Game.prototype.moveSideways = function(direction) {
-  console.log("moving", direction);
-
   if (direction === "left") {
     var transform = -1;
   } else if (direction === "right") {
@@ -227,9 +195,7 @@ Game.prototype.moveSideways = function(direction) {
   }
 
   this.transformBlocks(blockList, function(block) {
-
       block.col += transform;
-      console.log(block);
       return block;
   });
   this.toString();
@@ -245,7 +211,6 @@ Game.prototype.moveDown = function() {
     return;
   }
   blockList.forEach(function(block){
-    console.log("looking for blocks", block);
     var charBelow = this.getPoint(block.row + 1, block.col);
     if (charBelow === "#") {
       this.transformBlocks(blockList, convertShape);
@@ -264,8 +229,9 @@ Game.prototype.moveDown = function() {
   this.toString();
 };
 
-Game.prototype.rotateClockwise = function() {};
+Game.prototype.rotateClockwise = function() {
 
+};
 
 function createBoard(height, width) {
 
