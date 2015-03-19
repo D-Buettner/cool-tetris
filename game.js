@@ -279,12 +279,10 @@ Game.prototype.toString = function() {
     row.forEach(function(col){
       if (col[0] === ".") {
         resultString += ".";
-      } else if (col[0] === "o" /*|| col[0] === "O"*/) {
+      } else if (col[0] === "o" || col[0] === "O") {
         resultString += "o";
       } else if (col[0] === "#") {
         resultString += "#";
-      } else if (col[0] === "O") {
-        resultString += "*";
       }
     });
     resultString += '<br>';
