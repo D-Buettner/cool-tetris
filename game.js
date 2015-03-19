@@ -248,8 +248,14 @@ Game.prototype.rotate = function(direction) {
       console.log("row y difference from pivot", rowDifference);
       var colDifference = block.col - blockList[pivotIndex].col;
       console.log("column x difference from pivot", colDifference);
-      block.xColTransform = pivotXCol + rowDifference;
+      if (direction === "clockwise") {
+        block.xColTransform = pivotXCol - rowDifference;
+        block.yRowTransform = pivotYRow + colDifference;
+      } else {
+        block.xColTransform = pivotXCol + rowDifference;
       block.yRowTransform = pivotYRow - colDifference;
+      }
+      
       console.log("block.xColTransform", block.xColTransform);
       console.log("block.yRowTransform", block.yRowTransform);
     }
@@ -261,6 +267,7 @@ Game.prototype.rotate = function(direction) {
   }
     return block;
   });
+  this.toString();
     // append xy transforms to block object
 };
 
@@ -329,6 +336,8 @@ function addKeyboardControl(GameObject) {
       case 38:
         GameObject.rotate("clockwise");
         break;
+      case 90:
+        GameObject.rotate("anti-clockwise");
       case 40:
         GameObject.moveDown();
         break;
