@@ -25,6 +25,8 @@ function Game(height, width, level) {
   this.clearedLines = 0;
   this.score = 0;
   this.currentShape = "";
+  this.dead = false;
+  this.interval;
 }
 
 Game.prototype.getPoint = function(row, col) {
@@ -69,29 +71,39 @@ Game.prototype.transformBlocks = function(blockList, f) {
   blockList = blockList.map(f);
   console.log("new blocklist", blockList);
   blockList.forEach(function(block){
-    console.log()
     this.setPoint(block.row, block.col, block.blockType);
   }, this);
   this.checkRows();
 }
 
 Game.prototype.step = function(objRef) {
+  console.log("step");
   // set objRef to pass to interval function.
   if (!objRef) {
     var objRef = this;
   }
-    objRef.checkRows();
-  // Maybe refactor this
+
+  objRef.checkRows();
+  // Check for new shape or death.
   if (objRef.gotShape === false) {
     objRef.newShape();
+    
   }
 
-  console.log("step");
-  objRef.moveDown();
+  if (objRef.dead) {
 
-  objRef.toString();
+      clearInterval(objRef.interval);
+      death();
+    }
 
-  var nextStep = setInterval(this.step, 1000, objRef);
+    objRef.moveDown();
+
+    objRef.toString();
+
+    if (objRef.interval === undefined) {
+      objRef.interval = setInterval(this.step, 600, objRef);
+  }
+
 };
 
 var convertShape = function(block) {
@@ -110,11 +122,19 @@ Game.prototype.newShape = function() {
       // Write shape to page from stored coordinate pairs (x=[0], y=[1])
       var chosenShape = this.shapeList[i];
       chosenShape.startingCoordinates.forEach(function(point) {
+        
+        // Check death.
+        if (this.getPoint(point[0], point[1]) !== ".") {
+          this.dead = true;
+          console.log(this, this.dead);
+        }
+        
         this.setPoint(point[0], point[1], "o");
-      }, this);
+      }, this); 
       this.setPoint(chosenShape.pivot[0], chosenShape.pivot[1], "O");
-    }
-    this.gotShape = true;
+      this.gotShape = true;
+      return;
+    } 
   }
 };
 
@@ -164,6 +184,8 @@ Game.prototype.moveSideways = function(direction) {
 
   // Check if legal move
   var isLegal = true
+
+  // refactor this with rotate legality check
   blockList.forEach(function(block) {
     console.log("checking legality");
     var adjacentChar = this.getPoint(block.row, block.col + transform);
@@ -264,16 +286,57 @@ Game.prototype.rotate = function(direction) {
       console.log("block.yRowTransform", block.yRowTransform);
     }
   });
+  // check move doesnt go out.
+  this.kickInBoard(blockList);
+  console.log("after kick", blockList);
   this.transformBlocks(blockList, function(block){
     if (block.xColTransform) {
     block.row = block.yRowTransform;
     block.col = block.xColTransform;
   }
+  
     return block;
   });
   this.toString();
     // append xy transforms to block object
 };
+
+Game.prototype.kickInBoard = function(blockList, row, col) {
+  // 'Kick' if going off the side
+  console.log("kick function", blockList);
+  blockList.forEach(function(block){
+    if (block.xColTransform && block.xColTransform < 0) {
+      this.transformBlocks(blockList, function(block){
+        block.xColTransform += 1;
+        return this.kickInBoard(blockList);
+      });
+    } else if (block.xColTransform && 
+                block.xColTransform > this.width - 1) {
+      
+      this.transformBlocks(blockList, function(block){
+        block.xColTransform -= 1;
+        return this.kickInBoard(blockList);
+      });
+    }
+  }, this);
+} 
+
+Game.prototype.kickInBoard = function(blockList, row, col) {
+  // 'Kick' if going off the side
+  blockList.forEach(function(block){
+    if (block.col < 0) {
+      this.transformBlocks(blockList, function(block){
+        block.col += 1;
+        this.kickInBoard(blockList);
+      });
+    } else if (block.col > this.width - 1) {
+      this.transformBlocks(blockList, function(block){
+        block.col -= 1;
+        this.kickInBoard(blockList);
+      });
+    }
+  }, this);
+} 
 
 Game.prototype.toString = function() {
   console.log("toString called");
@@ -314,6 +377,10 @@ function createBoard(height, width) {
   }
   return board;
 };
+
+function death() {
+  writeToWindow("You died!");
+}
 
 function randomShape() {
   var shapeString = "iotszjl";
