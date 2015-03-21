@@ -15,7 +15,6 @@ var shapes = [
 ];
 
 function Game(height, width, level) {
-
   this.level = level;
   this.height = height;
   this.width = width;
@@ -27,6 +26,7 @@ function Game(height, width, level) {
   this.currentShape = "";
   this.dead = false;
   this.interval;
+  console.log(this.board);
 }
 
 Game.prototype.getPoint = function(row, col) {
@@ -38,9 +38,6 @@ Game.prototype.getPoint = function(row, col) {
 };
 
 Game.prototype.setPoint = function(row, col, item) {
-  console.log("set point");
-  console.log(item);
-  console.log("setting point..", row, col, item);
   this.board[row][col] = item;
 };
 
@@ -55,26 +52,47 @@ Game.prototype.getActiveBlockLocations =  function() {
         bCount += 1;
       }  
     });
-    // counter + some loop allow f to return once blocks are located.
     return bCount === 4;
   });
   return blocks;
 };
 
-Game.prototype.transformBlocks = function(blockList, f) {
-  console.log("transforming blocks");
-  // Wipe previous location
+Game.prototype.getTargetLocations = function(blockList, f) {
+  var targetList = blockList.map(f);
+  console.log("new blocklist", targetList);
+  return targetList;
+};
+
+Game.prototype.checkLegality = function(blockList) {
+  // CHecks legality. Returns 'clear' or reason that move is illegal.
+  var isLegal = "clear";
+  blockList.some(function(block) {
+    console.log('checking legality', block.row, block.col);
+      var itemAtPoint = this.getPoint(block.row, block.col);
+    if (itemAtPoint === undefined) {
+      isLegal = "offBoard";
+      return false;
+    } else if (itemAtPoint === "#") {
+      isLegal = "#";
+      return false;
+    }
+  }, this);
+  return isLegal;
+};
+
+Game.prototype.transformBlocks = function(blockList, targetList) {
+  // Wipe previous location.
   blockList.forEach(function(block){
     this.setPoint(block.row, block.col, ".");
   }, this);
-
-  blockList = blockList.map(f);
-  console.log("new blocklist", blockList);
-  blockList.forEach(function(block){
+  console.log(targetList);
+  // Set target location.
+  targetList.forEach(function(block){
     this.setPoint(block.row, block.col, block.blockType);
   }, this);
+
   this.checkRows();
-}
+};
 
 Game.prototype.step = function(objRef) {
   console.log("step");
@@ -86,6 +104,7 @@ Game.prototype.step = function(objRef) {
   objRef.checkRows();
   // Check for new shape or death.
   if (objRef.gotShape === false) {
+    console.log("doing a new shape from step");
     objRef.newShape();
     
   }
@@ -95,7 +114,7 @@ Game.prototype.step = function(objRef) {
       clearInterval(objRef.interval);
       death();
     }
-
+    console.log("moving down");
     objRef.moveDown();
 
     objRef.toString();
@@ -115,6 +134,7 @@ var convertShape = function(block) {
 Game.prototype.newShape = function() {
   // Select shape
   console.log("New shape");
+  console.log(this.board);
   var type = randomShape();
   this.currentShape = type;
   for (var i = 0; i < this.shapeList.length; i++) {
@@ -133,6 +153,7 @@ Game.prototype.newShape = function() {
       }, this); 
       this.setPoint(chosenShape.pivot[0], chosenShape.pivot[1], "O");
       this.gotShape = true;
+      console.log(this.board);
       return;
     } 
   }
@@ -181,57 +202,42 @@ Game.prototype.moveSideways = function(direction) {
   }
 
   var blockList = this.getActiveBlockLocations();
-
-  // Check if legal move
-  var isLegal = true
-
-  // refactor this with rotate legality check
-  blockList.forEach(function(block) {
-    console.log("checking legality");
-    var adjacentChar = this.getPoint(block.row, block.col + transform);
-    if (adjacentChar === undefined || adjacentChar === "#") {
-      console.log("illegal");
-      isLegal = false;
-    }
-  }, this);
-
-  if (!isLegal) {
-    return;
-  }
-
-  this.transformBlocks(blockList, function(block) {
-      block.col += transform;
-      return block;
+  var targetList = this.getTargetLocations(blockList, function(block) {
+    // Create copy of block to prevent errors.
+    var newBlock = JSON.parse(JSON.stringify(block));
+    newBlock.col += transform;
+    return newBlock;
   });
-  this.toString();
+
+  if (this.checkLegality(targetList) === "clear") {
+    this.transformBlocks(blockList, targetList);
+    this.toString();
+  }  
 };
 
 Game.prototype.moveDown = function() {
+  console.log("calling move");
   var blockList = this.getActiveBlockLocations();
   console.log(blockList);
-  // Block at end of list should be lowest.
-  if (this.getPoint(blockList[blockList.length -1].row + 1, 0) === undefined) {
-    this.transformBlocks(blockList, convertShape);
-    this.gotShape = false;
-    return;
-  }
-  blockList.forEach(function(block) {
-    var charBelow = this.getPoint(block.row + 1, block.col);
-    if (charBelow === "#") {
-      this.transformBlocks(blockList, convertShape);
-      this.gotShape = false;
-      return;
-    }
-  }, this);
-  if (!this.gotShape) {
-    return;
-  }
 
-  this.transformBlocks(blockList, function(block){
-    block.row += 1;
-    return block;
+  var targetList = this.getTargetLocations(blockList, function(block) {
+    // Clone obj to prevent modification of original.
+    var newBlock = JSON.parse(JSON.stringify(block));
+    newBlock.row += 1;
+    return newBlock;
   });
-  this.toString();
+  var isLegal = this.checkLegality(targetList);
+  // Check legality then move or convert to landed.
+  if (isLegal === "clear") {
+    this.transformBlocks(blockList, targetList);
+  } else {
+    console.log('converting');
+    targetList = this.getTargetLocations(blockList, convertShape);
+    this.transformBlocks(blockList, targetList);
+    this.gotShape = false;
+  }
+this.toString();
+  
 };
 
 Game.prototype.rotate = function(direction) {
@@ -279,7 +285,7 @@ Game.prototype.rotate = function(direction) {
         block.yRowTransform = pivotYRow + colDifference;
       } else {
         block.xColTransform = pivotXCol + rowDifference;
-      block.yRowTransform = pivotYRow - colDifference;
+        block.yRowTransform = pivotYRow - colDifference;
       }
       
       console.log("block.xColTransform", block.xColTransform);
@@ -287,56 +293,22 @@ Game.prototype.rotate = function(direction) {
     }
   });
   // check move doesnt go out.
-  this.kickInBoard(blockList);
+  //this.kickInBoard(blockList);
   console.log("after kick", blockList);
-  this.transformBlocks(blockList, function(block){
+  var targetList = this.getTargetLocations(blockList, function(block) {
     if (block.xColTransform) {
-    block.row = block.yRowTransform;
-    block.col = block.xColTransform;
-  }
-  
-    return block;
+      var newBlock = JSON.parse(JSON.stringify(block));
+      newBlock.row = block.yRowTransform;
+      newBlock.col = block.xColTransform;
+      return newBlock;
+    } else {
+      return block;
+    }
   });
+  this.transformBlocks(blockList, targetList);
+
   this.toString();
-    // append xy transforms to block object
 };
-
-Game.prototype.kickInBoard = function(blockList, row, col) {
-  // 'Kick' if going off the side
-  console.log("kick function", blockList);
-  blockList.forEach(function(block){
-    if (block.xColTransform && block.xColTransform < 0) {
-      this.transformBlocks(blockList, function(block){
-        block.xColTransform += 1;
-        return this.kickInBoard(blockList);
-      });
-    } else if (block.xColTransform && 
-                block.xColTransform > this.width - 1) {
-      
-      this.transformBlocks(blockList, function(block){
-        block.xColTransform -= 1;
-        return this.kickInBoard(blockList);
-      });
-    }
-  }, this);
-} 
-
-Game.prototype.kickInBoard = function(blockList, row, col) {
-  // 'Kick' if going off the side
-  blockList.forEach(function(block){
-    if (block.col < 0) {
-      this.transformBlocks(blockList, function(block){
-        block.col += 1;
-        this.kickInBoard(blockList);
-      });
-    } else if (block.col > this.width - 1) {
-      this.transformBlocks(blockList, function(block){
-        block.col -= 1;
-        this.kickInBoard(blockList);
-      });
-    }
-  }, this);
-} 
 
 Game.prototype.toString = function() {
   console.log("toString called");
@@ -375,7 +347,9 @@ function createBoard(height, width) {
       board[i][j] = '.';
     }
   }
+  console.log('making',board);
   return board;
+
 };
 
 function death() {
@@ -407,6 +381,7 @@ function addKeyboardControl(GameObject) {
         break;
       case 90:
         GameObject.rotate("anti-clockwise");
+        break;
       case 40:
         GameObject.moveDown();
         break;
@@ -415,8 +390,9 @@ function addKeyboardControl(GameObject) {
 }
 
 function run(height, width, level) {
+  console.log("starting game");
   var currentGame = new Game(height, width, level);
+  console.log(currentGame.board);
   addKeyboardControl(currentGame);
-  currentGame.newShape();
   currentGame.step();
 }
