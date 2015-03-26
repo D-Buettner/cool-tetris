@@ -30,7 +30,7 @@ function Game(height, width, level) {
 }
 
 Game.prototype.getPoint = function(row, col) {
-  if (!this.board[row]) {
+  if (!this.board[row] || !this.board[0][col]) {
     return "doesNotExist";
   }
   var itemAtCoordinates = this.board[row][col];
@@ -56,7 +56,7 @@ Game.prototype.getActiveBlockLocations =  function() {
   });
   return blocks;
 };
-
+// 25 15 05 06
 Game.prototype.getTargetLocations = function(blockList, f) {
   var targetList = blockList.map(f);
   console.log("new blocklist", targetList);
@@ -308,7 +308,7 @@ Game.prototype.rotate = function(direction) {
   });
 
   var targetList = this.getTargetLocations(blockList, function(block) {
-    if (block.xColTransform) {
+    if (!isNaN(block.xColTransform)) {
       var newBlock = JSON.parse(JSON.stringify(block));
       newBlock.row = block.yRowTransform;
       newBlock.col = block.xColTransform;
