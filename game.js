@@ -31,7 +31,7 @@ function Game(height, width, level) {
 
 Game.prototype.getPoint = function(row, col) {
   if (!this.board[row]) {
-    return undefined;
+    return "doesNotExist";
   }
   var itemAtCoordinates = this.board[row][col];
   return itemAtCoordinates;
@@ -64,14 +64,27 @@ Game.prototype.getTargetLocations = function(blockList, f) {
 };
 
 Game.prototype.checkLegality = function(blockList) {
+  console.log("calling is legal");
+  console.log(this.board);
+  console.log(blockList);
   // CHecks legality. Returns 'clear' or reason that move is illegal.
   var isLegal = "clear";
   blockList.some(function(block) {
     console.log('checking legality', block.row, block.col);
-      var itemAtPoint = this.getPoint(block.row, block.col);
-    if (itemAtPoint === undefined) {
-      isLegal = "offBoard";
-      return false;
+    var itemAtPoint = this.getPoint(block.row, block.col);
+    if (itemAtPoint === "doesNotExist") {
+
+      if (block.col < 0) {
+        isLegal = "offLeft";
+        return false;
+      } else if (block.col > this.width - 1) {
+        isLegal = "offRight";
+        return false;
+      } else {
+        isLegal = "offBottom";
+        return false;
+      }
+
     } else if (itemAtPoint === "#") {
       isLegal = "#";
       return false;
@@ -120,7 +133,7 @@ Game.prototype.step = function(objRef) {
     objRef.toString();
 
     if (objRef.interval === undefined) {
-      objRef.interval = setInterval(this.step, 600, objRef);
+      objRef.interval = setInterval(this.step, 1000, objRef);
   }
 
 };
@@ -229,6 +242,7 @@ Game.prototype.moveDown = function() {
   var isLegal = this.checkLegality(targetList);
   // Check legality then move or convert to landed.
   if (isLegal === "clear") {
+    console.log("legal move");
     this.transformBlocks(blockList, targetList);
   } else {
     console.log('converting');
@@ -292,9 +306,7 @@ Game.prototype.rotate = function(direction) {
       console.log("block.yRowTransform", block.yRowTransform);
     }
   });
-  // check move doesnt go out.
-  //this.kickInBoard(blockList);
-  console.log("after kick", blockList);
+
   var targetList = this.getTargetLocations(blockList, function(block) {
     if (block.xColTransform) {
       var newBlock = JSON.parse(JSON.stringify(block));
@@ -305,9 +317,48 @@ Game.prototype.rotate = function(direction) {
       return block;
     }
   });
+
+  // Kick to side if next to wall. Cancel if overlapping block
+  
+  targetList = this.rotateCollisionHandler(targetList);
+
+  // If handler has returned false, cancel rotation.
+  if (!targetList) {
+    return;
+  }
+
   this.transformBlocks(blockList, targetList);
 
   this.toString();
+};
+
+Game.prototype.rotateCollisionHandler = function(targetList) {
+  var isLegal = this.checkLegality(targetList);
+  if (isLegal !== "clear") {
+
+      if (isLegal === "offLeft") {
+        targetList = this.getTargetLocations(targetList, function(block) {
+          var newBlock = JSON.parse(JSON.stringify(block));
+          newBlock.col += 1;
+          return newBlock;
+        }, this);
+        // Check again after 'kick'.
+        return this.rotateCollisionHandler(targetList);
+
+      } else if (isLegal === "offRight") {
+        targetList = this.getTargetLocations(targetList, function(block) {
+          var newBlock = JSON.parse(JSON.stringify(block));
+          newBlock.col -= 1;
+          return newBlock;
+        }, this);
+        return this.rotateCollisionHandler(targetList);
+      }
+
+      if (isLegal === "#") {
+      return false;
+    }
+  }
+  return targetList;
 };
 
 Game.prototype.toString = function() {
