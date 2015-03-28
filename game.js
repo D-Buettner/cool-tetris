@@ -301,14 +301,12 @@ Game.prototype.rotate = function(direction) {
         block.xColTransform = pivotXCol + rowDifference;
         block.yRowTransform = pivotYRow - colDifference;
       }
-      
-      console.log("block.xColTransform", block.xColTransform);
-      console.log("block.yRowTransform", block.yRowTransform);
     }
   });
 
   var targetList = this.getTargetLocations(blockList, function(block) {
     if (!isNaN(block.xColTransform)) {
+      // SEPERATE INTO FUNCTION FOR CLARITY
       var newBlock = JSON.parse(JSON.stringify(block));
       newBlock.row = block.yRowTransform;
       newBlock.col = block.xColTransform;
