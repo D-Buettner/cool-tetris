@@ -95,7 +95,6 @@ Game.prototype.transformBlocks = function(blockList, targetList) {
   blockList.forEach(function(block){
     this.setPoint(block.row, block.col, ".");
   }, this);
-  console.log(targetList);
   // Set target location.
   targetList.forEach(function(block){
     this.setPoint(block.row, block.col, block.blockType);
@@ -105,7 +104,6 @@ Game.prototype.transformBlocks = function(blockList, targetList) {
 };
 
 Game.prototype.step = function(objRef) {
-  console.log("step");
   // set objRef to pass to interval function.
   if (!objRef) {
     var objRef = this;
@@ -128,8 +126,13 @@ Game.prototype.step = function(objRef) {
     objRef.toString();
 
     if (objRef.newLevelFlag === true) {
+      
       // delete old interval
-      objRef.interval = setInterval(this.step, this.speed, objRef);
+      if (objRef.interval) {
+        clearInterval(objRef.interval);
+      }
+      
+      objRef.interval = setInterval(objRef.step, objRef.speed, objRef);
       objRef.newLevelFlag = false;
 
   }
@@ -199,9 +202,10 @@ Game.prototype.checkRows = function() {
     this.score += rowMulti * 10 * rowMulti;
 
     // Increase speed every 10 lines
-    if (this.clearedLines % 10 === 0) {
+    if (this.clearedLines % 2 === 0) {
       this.speed = 1000 - this.clearedLines * 5;
       this.level += 1;
+      this.newLevelFlag = true;
     }
   }
 };
