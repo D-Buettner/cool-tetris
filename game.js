@@ -402,8 +402,8 @@ function randomShape() {
 }
 
 function writeToWindow(string) {
-    var target = document.getElementById("game_window");
-    target.innerHTML = string;
+    var target = document.getElementById("game-window");
+    //target.innerHTML = string;
 }
 
 function addKeyboardControl(GameObject) {
@@ -430,6 +430,7 @@ function addKeyboardControl(GameObject) {
 
 function run(height, width, level) {
   console.log("starting game");
+  drawCanvas(height, width);
   var currentGame = new Game(height, width, level);
   addKeyboardControl(currentGame);
   currentGame.step();

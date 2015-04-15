@@ -2,3 +2,7 @@ body {
     font-family: monospace;
     font-size: 1.5rem;
 }
+
+canvas {
+    border: 2px solid grey;
+}
