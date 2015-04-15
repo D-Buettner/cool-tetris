@@ -1,3 +1,11 @@
+var colours = { I : "#00ffff",
+                O : "#ffff00",
+                T : "#551a8b",
+                S : "#00ff00",
+                Z : "#ff0000",
+                J : "#0000ff",
+                L : "#ffa500" 
+                              };
 
 function drawCanvas(height, width) {
   var cellSize = 20;
@@ -33,3 +41,8 @@ function drawCanvas(height, width) {
   document.getElementById("tetris-canvas").style.background = '#032753';
 }
 
+function drawBlock(type)
+
+function redraw(){
+  // Refactor to only draw changed cells if performance is an issue.
+}
