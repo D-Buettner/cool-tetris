@@ -1,16 +1,19 @@
 "use strict";
 
+var LEFT = -1;
+var RIGHT = 1;
+
 // Shape object includes name, location of starting blocks,
 // and location of the pivot block.
 var shapes = [
     
-    { name: "i", startingCoordinates: [[1, 3],[1, 5],[1, 6],], pivot: [1, 4] },
-    { name: "o", startingCoordinates: [[0, 4],[0, 5],[1, 5],], pivot: [1, 4] },
-    { name: "t", startingCoordinates: [[0, 4],[1, 3],[1, 5],], pivot: [1, 4] },
-    { name: "s", startingCoordinates: [[0, 4],[0, 5],[1, 3],], pivot: [1, 4] },
-    { name: "z", startingCoordinates: [[0, 3],[0, 4],[1, 5],], pivot: [1, 4] },
-    { name: "j", startingCoordinates: [[0, 3],[1, 3],[1, 5],], pivot: [1, 4] },
-    { name: "l", startingCoordinates: [[0, 5],[1, 3],[1, 5],], pivot: [1, 4] },
+    { name: "I", startingCoordinates: [[1, 3],[1, 5],[1, 6],], pivot: [1, 4] },
+    { name: "O", startingCoordinates: [[0, 4],[0, 5],[1, 5],], pivot: [1, 4] },
+    { name: "T", startingCoordinates: [[0, 4],[1, 3],[1, 5],], pivot: [1, 4] },
+    { name: "S", startingCoordinates: [[0, 4],[0, 5],[1, 3],], pivot: [1, 4] },
+    { name: "Z", startingCoordinates: [[0, 3],[0, 4],[1, 5],], pivot: [1, 4] },
+    { name: "J", startingCoordinates: [[0, 3],[1, 3],[1, 5],], pivot: [1, 4] },
+    { name: "L", startingCoordinates: [[0, 5],[1, 3],[1, 5],], pivot: [1, 4] },
     
 ];
 
@@ -33,7 +36,7 @@ function Game(height, width, level) {
 
 Game.prototype.getPoint = function(row, col) {
   if (!this.board[row] || !this.board[0][col]) {
-    return "doesNotExist";
+    return -1;
   }
   var itemAtCoordinates = this.board[row][col];
   return itemAtCoordinates;
@@ -69,7 +72,7 @@ Game.prototype.checkLegality = function(blockList) {
   var isLegal = "clear";
   blockList.some(function(block) {
     var itemAtPoint = this.getPoint(block.row, block.col);
-    if (itemAtPoint === "doesNotExist") {
+    if (itemAtPoint === -1) {
 
       if (block.col < 0) {
         isLegal = "offLeft";
@@ -210,12 +213,7 @@ Game.prototype.checkRows = function() {
   }
 };
 
-Game.prototype.moveSideways = function(direction) {
-  if (direction === "left") {
-    var transform = -1;
-  } else if (direction === "right") {
-    var transform = 1;
-  }
+Game.prototype.moveSideways = function(transform) {
 
   var blockList = this.getActiveBlockLocations();
   var targetList = this.getTargetLocations(blockList, function(block) {
@@ -256,16 +254,16 @@ this.toString();
 Game.prototype.rotate = function(direction) {
   var rotate = "";
   switch (this.currentShape) {
-    case "i":
-      rotate = "i"
+    case "I":
+      rotate = "I"
       break
-    case "o":
+    case "O":
       return;
-    case "t":
-    case "s":
-    case "z":
-    case "j":
-    case "l":
+    case "T":
+    case "S":
+    case "Z":
+    case "J":
+    case "L":
       break;
   }
   var pivotIndex;
@@ -396,8 +394,8 @@ function death() {
 }
 
 function randomShape() {
-  var shapeString = "iotszjl";
-  var randNum = Math.floor(Math.random() * 7);
+  var shapeString = "IOTSZJL";
+  var randNum = Math.floor(Math.random() * shapeString.length);
   return shapeString.charAt(randNum);
 }
 
@@ -410,10 +408,10 @@ function addKeyboardControl(GameObject) {
   document.addEventListener("keydown", function(event){
     switch (event.keyCode) {
       case 37:
-        GameObject.moveSideways("left");
+        GameObject.moveSideways(LEFT);
         break;
       case 39:
-        GameObject.moveSideways("right");
+        GameObject.moveSideways(RIGHT);
         break;
       case 38:
         GameObject.rotate("clockwise");

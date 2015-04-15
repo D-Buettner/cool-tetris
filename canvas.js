@@ -41,8 +41,8 @@ function drawCanvas(height, width) {
   document.getElementById("tetris-canvas").style.background = '#032753';
 }
 
-function drawBlock(type)
+/*function drawBlock(type)
 
 function redraw(){
   // Refactor to only draw changed cells if performance is an issue.
-}
+}*/
