@@ -85,8 +85,8 @@ Game.prototype.checkLegality = function(blockList) {
         return false;
       }
 
-    } else if (itemAtPoint === "#") {
-      isLegal = "#";
+    } else if (itemAtPoint === "X") {
+      isLegal = "X";
       return false;
     }
   }, this);
@@ -126,7 +126,7 @@ Game.prototype.step = function(objRef) {
     }
     objRef.moveDown();
 
-    objRef.toString();
+    objRef.updateState();
 
     if (objRef.newLevelFlag === true) {
       
@@ -143,7 +143,7 @@ Game.prototype.step = function(objRef) {
 };
 
 var convertShape = function(block) {
-  block.blockType = "#";
+  block.blockType = "X";
   return block;
 }
 
@@ -183,7 +183,7 @@ Game.prototype.checkRows = function() {
     fullRow = true;
 
     row.forEach(function(col){
-      if (col !== "#") {
+      if (col !== "X") {
         fullRow = false;
       }
     }, this);
@@ -225,7 +225,7 @@ Game.prototype.moveSideways = function(transform) {
 
   if (this.checkLegality(targetList) === "clear") {
     this.transformBlocks(blockList, targetList);
-    this.toString();
+    this.updateState();
   }  
 };
 
@@ -247,7 +247,7 @@ Game.prototype.moveDown = function() {
     this.transformBlocks(blockList, targetList);
     this.gotShape = false;
   }
-this.toString();
+this.updateState();
   
 };
 
@@ -317,7 +317,7 @@ Game.prototype.rotate = function(direction) {
 
   this.transformBlocks(blockList, targetList);
 
-  this.toString();
+  this.updateState();
 };
 
 Game.prototype.rotateCollisionHandler = function(targetList) {
@@ -342,31 +342,30 @@ Game.prototype.rotateCollisionHandler = function(targetList) {
         return this.rotateCollisionHandler(targetList);
       }
 
-      if (isLegal === "#") {
+      if (isLegal === "X") {
       return false;
     }
   }
   return targetList;
 };
 
-Game.prototype.toString = function() {
+Game.prototype.updateState = function() {
   var resultString =  "";
   // row and column measured from top-left.
   this.board.forEach(function(row) {
     row.forEach(function(col){
       if (col[0] === ".") {
-        resultString += ".";
+        resultString += "N";
       } else if (col[0] === "o" || col[0] === "O") {
-        resultString += "o";
-      } else if (col[0] === "#") {
-        resultString += "#";
+        resultString += this.currentShape;
+      } else if (col[0] === "X") {
+        resultString += "X";
       }
-    });
-    resultString += '<br>';
-  });
-  resultString += '<br><br> Score: ';
-  resultString += this.score;
-  writeToWindow(resultString);
+    }, this);
+  }, this);
+  // Better way to seperate view from logic?
+  console.log(resultString);
+  this.canvas.redraw(resultString);
 };
 
 function createBoard(height, width) {
@@ -390,18 +389,13 @@ function createBoard(height, width) {
 };
 
 function death() {
-  writeToWindow("You died!");
+  console.log("You died!");
 }
 
 function randomShape() {
   var shapeString = "IOTSZJL";
   var randNum = Math.floor(Math.random() * shapeString.length);
   return shapeString.charAt(randNum);
-}
-
-function writeToWindow(string) {
-    var target = document.getElementById("game-window");
-    //target.innerHTML = string;
 }
 
 function addKeyboardControl(GameObject) {
@@ -428,8 +422,8 @@ function addKeyboardControl(GameObject) {
 
 function run(height, width, level) {
   console.log("starting game");
-  drawCanvas(height, width);
   var currentGame = new Game(height, width, level);
+  currentGame.canvas = new Canvas(height, width);
   addKeyboardControl(currentGame);
   currentGame.step();
 }
