@@ -53,12 +53,12 @@ Game.prototype.getActiveBlockLocations =  function() {
   this.board.some(function(row, rowIndex) {
     row.forEach(function(col, colIndex) {
       if (col === "o" || col === "O") {
-        blocks.push({row:rowIndex, col:colIndex, blockType:col});
+        blocks.push({row:rowIndex, col:colIndex, blockType:col, currentShape: this.currentShape});
         bCount += 1;
       }  
-    });
+    },this);
     return bCount === 4;
-  });
+  }, this);
   return blocks;
 };
 // 25 15 05 06
@@ -85,7 +85,7 @@ Game.prototype.checkLegality = function(blockList) {
         return false;
       }
 
-    } else if (itemAtPoint === "X") {
+    } else if (itemAtPoint.indexOf("X") > -1) {
       isLegal = "X";
       return false;
     }
@@ -143,7 +143,9 @@ Game.prototype.step = function(objRef) {
 };
 
 var convertShape = function(block) {
-  block.blockType = "X";
+  // Current shape needed to retain color after landing.
+  block.blockType = "X" + block.currentShape;
+
   return block;
 }
 
@@ -183,7 +185,7 @@ Game.prototype.checkRows = function() {
     fullRow = true;
 
     row.forEach(function(col){
-      if (col !== "X") {
+      if (col.indexOf("X") === -1) {
         fullRow = false;
       }
     }, this);
@@ -350,6 +352,7 @@ Game.prototype.rotateCollisionHandler = function(targetList) {
 };
 
 Game.prototype.updateState = function() {
+
   var resultString =  "";
   // row and column measured from top-left.
   this.board.forEach(function(row) {
@@ -359,12 +362,13 @@ Game.prototype.updateState = function() {
       } else if (col[0] === "o" || col[0] === "O") {
         resultString += this.currentShape;
       } else if (col[0] === "X") {
-        resultString += "X";
+        console.log(col);
+        resultString += col[1].toLowerCase();
       }
     }, this);
   }, this);
   // Better way to seperate view from logic?
-  console.log(resultString);
+
   this.canvas.redraw(resultString);
 };
 
