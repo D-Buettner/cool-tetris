@@ -363,7 +363,7 @@ Game.prototype.updateState = function() {
         resultString += this.currentShape;
       } else if (col[0] === "X") {
         console.log(col);
-        resultString += col[1].toLowerCase();
+        resultString += col[1];
       }
     }, this);
   }, this);
