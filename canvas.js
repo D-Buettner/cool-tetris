@@ -51,8 +51,9 @@ function Canvas(height, width) {
   this.width = width;
   console.log(height, width);
 
-  this.gridHeight = height * CELL_SIZE;
-  this.gridWidth = width * CELL_SIZE;
+  // + 2 to allow for line thickness
+  this.gridHeight = height * (CELL_SIZE + 1);
+  this.gridWidth = width * (CELL_SIZE + 1);
 
   this.c = document.createElement("canvas");
   this.ctx = this.c.getContext("2d");
@@ -62,7 +63,7 @@ function Canvas(height, width) {
   holder = document.getElementById("game-window");
   holder.appendChild(c);
   c.id = "tetris-canvas";
-
+  // Include right border
   ctx.canvas.height = this.gridHeight;
   ctx.canvas.width = this.gridWidth;
 
@@ -70,15 +71,15 @@ function Canvas(height, width) {
   // REFACTOR SO LOOP IS DONE IN PIXELS
   for (var i = 1; i < width; i++) {
     // 0.5 ensures line is drawn to overlap border instead of starting on it.
-    var x = i * CELL_SIZE - 0.5;
-    ctx.moveTo(x, 0);
+    var x = i * (CELL_SIZE + 1) + 0.5;
+    ctx.moveTo(x, 0.5);
     ctx.lineTo(x, this.gridHeight);
   }
   
   // too much space in bottom right corner error probably caused  here: line too long
   for (var i = 1; i < height; i++) {
-    var y = i * CELL_SIZE - 0.5;
-    ctx.moveTo(0, y);
+    var y = i * (CELL_SIZE + 1) + 0.5;
+    ctx.moveTo(0.5, y);
     ctx.lineTo(this.gridWidth, y);
   }
 
@@ -107,12 +108,12 @@ Canvas.prototype.redraw = function(stateString) {
 Canvas.prototype.drawBlock = function(type, x, y) {
 
 
-  var startX = x * CELL_SIZE;
-  var startY = y * CELL_SIZE;
+  var startX = x * (CELL_SIZE + 1) + 1.5;
+  var startY = y * (CELL_SIZE + 1) + 1.5;
    
   //console.log(startX) // should show problem with bottom corner bug. 
   this.ctx.fillStyle = COLORS[type];
-  this.ctx.fillRect(startX, startY, 19, 19);
+  this.ctx.fillRect(startX, startY, CELL_SIZE - 1, CELL_SIZE - 1);
   if (type !== 'N') {
     this.drawShadows(type, startX, startY);
   }
@@ -125,10 +126,10 @@ Canvas.prototype.drawShadows = function(type, x, y) {
   var shadowSize = CELL_SIZE / 8;
   
   ctx.beginPath();
-  ctx.moveTo(x, y + CELL_SIZE);
-  ctx.lineTo(x + shadowSize, y + CELL_SIZE - shadowSize);
-  ctx.lineTo(x + CELL_SIZE - shadowSize, y + CELL_SIZE - shadowSize);
-  ctx.lineTo(x + CELL_SIZE, y + CELL_SIZE);
+  ctx.moveTo(x, y + CELL_SIZE - 1);
+  ctx.lineTo(x + shadowSize, y + CELL_SIZE - shadowSize - 1);
+  ctx.lineTo(x + CELL_SIZE - shadowSize - 1 , y + CELL_SIZE - shadowSize - 1);
+  ctx.lineTo(x + CELL_SIZE - 1, y + CELL_SIZE - 1);
   // Change to shadow color.
   ctx.fillStyle = COLORS[type.toLowerCase()];
   ctx.fill();
