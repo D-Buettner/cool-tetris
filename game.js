@@ -257,6 +257,7 @@ Game.prototype.rotate = function(direction) {
   var rotate = "";
   switch (this.currentShape) {
     case "I":
+    // Add code for 'proper' I rotation.ro
       rotate = "I"
       break
     case "O":
