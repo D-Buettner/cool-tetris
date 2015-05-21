@@ -1,4 +1,4 @@
-var CELL_SIZE = 20;
+var CELL_SIZE = 25;
 var BACKGROUND_COLOR = '#032753';
 
 // Lowercase are for landed block colors.
@@ -42,7 +42,7 @@ var COLORS = {
               // Other
 
                 N : BACKGROUND_COLOR,
-                GRID : "#d9d9d9"
+                GRID : "#ebebeb"
 
                               };
 
@@ -57,17 +57,21 @@ function Canvas(height, width) {
 
   this.c = document.createElement("canvas");
   this.ctx = this.c.getContext("2d");
+  this.ctx.canvas.height = this.gridHeight + 1;
+  this.ctx.canvas.width = this.gridWidth + 1;
+
+  var c = this.c;
+  holder = document.getElementById("canvas-window");
+  holder.appendChild(c);
+  c.id = "tetris-canvas";
+}
+
+Canvas.prototype.drawGrid = function() {
+  
   var c = this.c;
   var ctx = this.ctx;
 
-  holder = document.getElementById("game-window");
-  holder.appendChild(c);
-  c.id = "tetris-canvas";
-  // Include right border
-  ctx.canvas.height = this.gridHeight + 1;
-  ctx.canvas.width = this.gridWidth + 1;
-
-  for (var i = 0; i <= width; i++) {
+  for (var i = 0; i <= this.width; i++) {
     // 0.5 ensures line is drawn to overlap border instead of starting on it.
     var x = i * (CELL_SIZE + 1) + 0.5;
     ctx.moveTo(x, 0.5);
@@ -75,7 +79,7 @@ function Canvas(height, width) {
   }
   
   // too much space in bottom right corner error probably caused  here: line too long
-  for (var i = 0; i <= height; i++) {
+  for (var i = 0; i <= this.height; i++) {
     var y = i * (CELL_SIZE + 1) + 0.5;
     ctx.moveTo(0.5, y);
     ctx.lineTo(this.gridWidth, y);
@@ -83,14 +87,11 @@ function Canvas(height, width) {
 
   ctx.strokeStyle = COLORS["GRID"];
   ctx.stroke();
-
-  document.getElementById("tetris-canvas").style.background = BACKGROUND_COLOR;
-
-
 }
 
 Canvas.prototype.redraw = function(stateString) {
 
+    this.drawGrid();
     // Convert string to coordinates
     for (var i = 0; i < stateString.length; i++) {
       // Element (x,y) = x + (y * gridWidth)

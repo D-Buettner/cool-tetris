@@ -5,23 +5,38 @@ body {
 }
 
 canvas {
-    border: 2px solid grey;
-    background: rgb(3, 39, 83);
-
+    border: 1px solid white;
     margin: auto;
-    margin-top: 2%;
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
     display: block;
 }
 
 #game-window {
-    width: 66vw;
-    height: 90vh;
+    width: 75%;
     display: block;
     margin: auto;
     background-color: #666666;
     border: 2px solid white;
     border-radius: 4px;
+    padding: 3rem;
+}
+
+#game-info {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.game-section {
+    min-width: 32%;
+    height: 100%;
+    margin: auto; 
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
+
+h1 {
+    color: white;
+    font-size: 5rem;
+    margin: auto;
 }

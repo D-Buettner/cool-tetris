@@ -363,7 +363,6 @@ Game.prototype.updateState = function() {
       } else if (col[0] === "o" || col[0] === "O") {
         resultString += this.currentShape;
       } else if (col[0] === "X") {
-        console.log(col);
         resultString += col[1];
       }
     }, this);
@@ -371,7 +370,8 @@ Game.prototype.updateState = function() {
   // Better way to seperate view from logic?
 
   this.canvas.redraw(resultString);
-};
+  displayCurrentInfo(this.level, this.score);
+}
 
 function createBoard(height, width) {
 
