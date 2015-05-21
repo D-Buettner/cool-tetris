@@ -1,8 +1,27 @@
 body {
     font-family: monospace;
     font-size: 1.5rem;
+    background-color: #383838;
 }
 
 canvas {
     border: 2px solid grey;
+    background: rgb(3, 39, 83);
+
+    margin: auto;
+    margin-top: 2%;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+    display: block;
+}
+
+#game-window {
+    width: 66vw;
+    height: 90vh;
+    display: block;
+    margin: auto;
+    background-color: #666666;
+    border: 2px solid white;
+    border-radius: 4px;
 }

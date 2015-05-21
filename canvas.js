@@ -1,7 +1,7 @@
 var CELL_SIZE = 20;
 var BACKGROUND_COLOR = '#032753';
 
-// Lowercase are for landed colors.
+// Lowercase are for landed block colors.
 var COLORS = {  
               // Main Colors
                 I : "#00ffff",
@@ -41,7 +41,8 @@ var COLORS = {
 
               // Other
 
-                N : BACKGROUND_COLOR
+                N : BACKGROUND_COLOR,
+                GRID : "#d9d9d9"
 
                               };
 
@@ -51,7 +52,6 @@ function Canvas(height, width) {
   this.width = width;
   console.log(height, width);
 
-  // + 2 to allow for line thickness
   this.gridHeight = height * (CELL_SIZE + 1);
   this.gridWidth = width * (CELL_SIZE + 1);
 
@@ -67,8 +67,6 @@ function Canvas(height, width) {
   ctx.canvas.height = this.gridHeight + 1;
   ctx.canvas.width = this.gridWidth + 1;
 
-  // Relies on a border being already drawn.
-  // REFACTOR SO LOOP IS DONE IN PIXELS
   for (var i = 0; i <= width; i++) {
     // 0.5 ensures line is drawn to overlap border instead of starting on it.
     var x = i * (CELL_SIZE + 1) + 0.5;
@@ -83,7 +81,7 @@ function Canvas(height, width) {
     ctx.lineTo(this.gridWidth, y);
   }
 
-  ctx.strokeStyle = "#eee";
+  ctx.strokeStyle = COLORS["GRID"];
   ctx.stroke();
 
   document.getElementById("tetris-canvas").style.background = BACKGROUND_COLOR;
