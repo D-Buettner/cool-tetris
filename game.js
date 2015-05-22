@@ -122,7 +122,8 @@ Game.prototype.step = function(objRef) {
   if (objRef.dead) {
 
       clearInterval(objRef.interval);
-      death();
+      objRef.death();
+      return;
     }
     objRef.moveDown();
 
@@ -382,6 +383,12 @@ Game.prototype.updateState = function() {
   displayCurrentInfo(this.level, this.score, this.clearedLines);
 }
 
+Game.prototype.death = function() {
+  console.log("You died!");
+  this.canvas.gameOver();
+
+}
+
 function createBoard(height, width) {
 
   //defaults
@@ -401,10 +408,6 @@ function createBoard(height, width) {
   return board;
 
 };
-
-function death() {
-  console.log("You died!");
-}
 
 function randomShape() {
   var shapeString = "IOTSZJL";

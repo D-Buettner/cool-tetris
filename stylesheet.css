@@ -1,48 +1,64 @@
 body {
-    font-family: 'Oxygen Mono';
+    font-family: 'Oxygen';
     font-size: 1.5rem;
+    color: orange;
     background-color: #383838;
 }
 
 canvas {
     border: 1px solid white;
-    margin: auto;
-    display: block;
 }
 
 #game-window {
-    width: 75%;
-    display: block;
-    margin: auto;
-    background-color: #586574;;
+    background-color: #586574;
     border: 2px solid white;
     border-radius: 4px;
-    padding: 3rem;
-}
-
-#game-info {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
+    padding-top: 3rem;
+    padding-bottom: 3rem;
 }
 
 .game-section {
-    min-width: 32%;
-    height: 100%;
-    margin: auto; 
-    display: inline-block;
     vertical-align: middle;
-    line-height: 4rem;
     text-align: center;
+    font-size: 2rem;
 }
 
 h1 {
     color: white;
     font-size: 5rem;
-    margin: auto;
+    font-family: 'Oxygen mono';
 }
 
-p {
+#game-info p {
     border: 2px solid white;
     border-radius: 4px;
+}
+
+#game-info {
+    line-height: 4rem;
+    margin-right: 2rem;
+}
+
+li {
+      list-style-type: none;
+}
+
+ul {
+    display: inline-block;
+}
+.list-left {
+    text-align: left;
+    padding-left: 2rem;
+}
+
+#game-controls {
+  border: 2px solid white;
+  border-radius: 4px;
+  margin-left: 2rem;
+  padding-right: 1rem;
+}
+
+#game-controls, #game-info {
+    margin-top: 4rem;
+    font-size: 2.2rem;
 }
