@@ -205,7 +205,7 @@ Game.prototype.checkRows = function() {
   // Calculate score increase
   if (rowsCleared) {
     this.clearedLines += rowMulti;
-    this.score += rowMulti * 10 * rowMulti;
+    this.score += (rowMulti * 2) * 10 * (this.level + 1);
     console.log(this.clearedLines % 10);
     this.increaseLevelCheck();
 
