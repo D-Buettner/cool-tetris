@@ -18,7 +18,8 @@ var shapes = [
 ];
 
 function Game(height, width, level) {
-  this.level = level;
+
+  this.level = level || 0;
   this.height = height;
   this.width = width;
   this.board = createBoard(height, width);
@@ -30,7 +31,6 @@ function Game(height, width, level) {
   this.dead = false;
   this.interval;
   this.speed = 1000;
-  this.level = 1;
   this.newLevelFlag = true;
 }
 
@@ -128,9 +128,9 @@ Game.prototype.step = function(objRef) {
 
     objRef.updateState();
 
+    // Reset timer on level change
     if (objRef.newLevelFlag === true) {
       
-      // delete old interval
       if (objRef.interval) {
         clearInterval(objRef.interval);
       }
@@ -202,24 +202,33 @@ Game.prototype.checkRows = function() {
     }
 
   }, this);
+  // Calculate score increase
   if (rowsCleared) {
     this.clearedLines += rowMulti;
     this.score += rowMulti * 10 * rowMulti;
+    console.log(this.clearedLines % 10);
+    this.increaseLevelCheck();
 
-    // Increase speed every 10 lines
-    if (this.clearedLines % 2 === 0) {
-      this.speed = 1000 - this.clearedLines * 5;
-      this.level += 1;
-      this.newLevelFlag = true;
-    }
   }
 };
+
+Game.prototype.increaseLevelCheck = function() {
+  var level = Math.floor(this.clearedLines / 10);
+  console.log("level: ", level);
+  console.log("this: ", this.level);
+  console.log(level > this.level);
+  if (level > this.level) {
+    this.speed *= 0.75;
+    this.level += 1;
+    this.newLevelFlag = true;
+  }
+}
 
 Game.prototype.moveSideways = function(transform) {
 
   var blockList = this.getActiveBlockLocations();
   var targetList = this.getTargetLocations(blockList, function(block) {
-    // Create copy of block to prevent errors.
+    // Clone block.
     var newBlock = JSON.parse(JSON.stringify(block));
     newBlock.col += transform;
     return newBlock;
