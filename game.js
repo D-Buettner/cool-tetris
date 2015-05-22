@@ -370,7 +370,7 @@ Game.prototype.updateState = function() {
   // Better way to seperate view from logic?
 
   this.canvas.redraw(resultString);
-  displayCurrentInfo(this.level, this.score);
+  displayCurrentInfo(this.level, this.score, this.clearedLines);
 }
 
 function createBoard(height, width) {
