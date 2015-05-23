@@ -71,14 +71,7 @@ ul {
   background-color: hsla(212.1, 13.7%, 40%, 0.8);
   display: inline-block;
   padding: 0.1rem 2.5rem;
-  border: 2px solid orange;
-}
-
-#game-over {
-    font-family: "Oxygen";
-    font-size: 5rem;
-    color: red;
-    background-color: hsla(212.1, 13.7%, 40%, 0.8);
+  border: 2px solid #ffc989;
 }
 
 #game-over {
@@ -86,9 +79,8 @@ ul {
   top: -37.75rem;
   font-family: "Oxygen";
   font-size: 4.5rem;
-  color: red;
   background-color: hsla(212.1, 13.7%, 40%, 0.8);
-  margin-left: 50px;
+  margin-left: 49px;
   margin-right: 50px;
   padding: 0.5rem 0rem;
 }
