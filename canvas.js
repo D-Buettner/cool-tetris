@@ -157,16 +157,3 @@ Canvas.prototype.drawIndividualShadow = function(fillStyle, point1, point2, poin
   ctx.fillStyle = fillStyle;
   ctx.fill();
 }
-
-Canvas.prototype.gameOver = function() {
-
-  var ctx = this.ctx;
-  ctx.fillStyle = "red";
-  ctx.strokeStyle = 'yellow';
-
-  ctx.font = " 36pt Oxygen";
-  ctx.fillText("Game Over!", 2, 200);
-  ctx.strokeText("Game Over!", 2, 200);
-  ctx.fill();
-  ctx.stroke();
-}

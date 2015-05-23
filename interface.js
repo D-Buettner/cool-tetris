@@ -21,3 +21,25 @@ function displayCurrentInfo(level, score, lines) {
  info.appendChild(scoreHolder);
  info.appendChild(linesHolder);
 }
+
+function gameOver() {
+  var gameOver = document.createElement("div");
+  var gameOverText = document.createTextNode("Game Over!");
+  var button = document.createElement("div");
+  var buttonText = document.createTextNode("Play Again?");
+  var canvas = document.getElementById("canvas-window");
+  
+  button.id = "button";
+  gameOver.id = "game-over";
+  
+  gameOver.appendChild(gameOverText);
+  button.appendChild(buttonText);
+  canvas.appendChild(gameOver);
+  canvas.appendChild(button);
+  button.addEventListener("click", function() {
+    while (canvas.firstChild) {
+      canvas.removeChild(canvas.firstChild);
+    }
+    run(20.0,10.0,0);
+  });
+}

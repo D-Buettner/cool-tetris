@@ -1,7 +1,7 @@
 body {
     font-family: 'Oxygen';
     font-size: 1.5rem;
-    color: orange;
+    color: #ffc989;
     background-color: #383838;
 }
 
@@ -27,6 +27,7 @@ h1 {
     color: white;
     font-size: 5rem;
     font-family: 'Oxygen mono';
+    margin-left: 2rem;
 }
 
 #game-info p {
@@ -61,4 +62,33 @@ ul {
 #game-controls, #game-info {
     margin-top: 4rem;
     font-size: 2.2rem;
+}
+
+#button {
+  color: white;
+  position: relative;
+  top: -26rem;
+  background-color: hsla(212.1, 13.7%, 40%, 0.8);
+  display: inline-block;
+  padding: 0.1rem 2.5rem;
+  border: 2px solid orange;
+}
+
+#game-over {
+    font-family: "Oxygen";
+    font-size: 5rem;
+    color: red;
+    background-color: hsla(212.1, 13.7%, 40%, 0.8);
+}
+
+#game-over {
+  position: relative;
+  top: -37.75rem;
+  font-family: "Oxygen";
+  font-size: 4.5rem;
+  color: red;
+  background-color: hsla(212.1, 13.7%, 40%, 0.8);
+  margin-left: 50px;
+  margin-right: 50px;
+  padding: 0.5rem 0rem;
 }

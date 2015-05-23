@@ -385,7 +385,7 @@ Game.prototype.updateState = function() {
 
 Game.prototype.death = function() {
   console.log("You died!");
-  this.canvas.gameOver();
+  gameOver();
 
 }
 
@@ -437,7 +437,10 @@ function addKeyboardControl(GameObject) {
   });
 }
 
-function run(height, width, level) {
+function run(height, width, level, event) {
+  height = 20;
+  width = 10;
+  level = 0;
   console.log("starting game");
   var currentGame = new Game(height, width, level);
   currentGame.canvas = new Canvas(height, width);
