@@ -23,18 +23,18 @@ function displayCurrentInfo(level, score, lines) {
 }
 
 function gameOver() {
-  var gameOver = document.createElement("div");
+  var gameOverHolder = document.createElement("div");
   var gameOverText = document.createTextNode("Game Over!");
   var button = document.createElement("div");
   var buttonText = document.createTextNode("Play Again?");
   var canvas = document.getElementById("canvas-window");
   
   button.id = "button";
-  gameOver.id = "game-over";
+  gameOverHolder.id = "game-over";
   
-  gameOver.appendChild(gameOverText);
+  gameOverHolder.appendChild(gameOverText);
   button.appendChild(buttonText);
-  canvas.appendChild(gameOver);
+  canvas.appendChild(gameOverHolder);
   canvas.appendChild(button);
   button.addEventListener("click", function() {
     while (canvas.firstChild) {

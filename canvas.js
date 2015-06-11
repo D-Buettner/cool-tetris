@@ -61,14 +61,13 @@ function Canvas(height, width) {
   this.ctx.canvas.width = this.gridWidth + 1;
 
   var c = this.c;
-  holder = document.getElementById("canvas-window");
+  var holder = document.getElementById("canvas-window");
   holder.appendChild(c);
   c.id = "tetris-canvas";
 }
 
 Canvas.prototype.drawGrid = function() {
   
-  var c = this.c;
   var ctx = this.ctx;
 
   for (var i = 0; i <= this.width; i++) {
@@ -79,15 +78,15 @@ Canvas.prototype.drawGrid = function() {
   }
   
   // too much space in bottom right corner error probably caused  here: line too long
-  for (var i = 0; i <= this.height; i++) {
-    var y = i * (CELL_SIZE + 1) + 0.5;
+  for (var j = 0; j <= this.height; j++) {
+    var y = j * (CELL_SIZE + 1) + 0.5;
     ctx.moveTo(0.5, y);
     ctx.lineTo(this.gridWidth, y);
   }
 
-  ctx.strokeStyle = COLORS["GRID"];
+  ctx.strokeStyle = COLORS.GRID;
   ctx.stroke();
-}
+};
 
 Canvas.prototype.redraw = function(stateString) {
 
@@ -101,7 +100,7 @@ Canvas.prototype.redraw = function(stateString) {
 
       this.drawBlock(stateString.charAt(i), x, y); 
     }
-}
+};
 
 Canvas.prototype.drawBlock = function(type, x, y) {
 
@@ -115,7 +114,7 @@ Canvas.prototype.drawBlock = function(type, x, y) {
   if (type !== 'N') {
     this.drawShadows(type, startX, startY);
   }
-}
+};
 
 Canvas.prototype.drawShadows = function(type, x, y) {
 
@@ -137,11 +136,11 @@ Canvas.prototype.drawShadows = function(type, x, y) {
   var sideFill = COLORS[type.toLowerCase() + "s"];
   var bottomFill = COLORS[type.toLowerCase() + "b"];
 
-  this.drawIndividualShadow(topFill, coordinates["aO"], coordinates["aI"], coordinates["bI"], coordinates["bO"]);
-  this.drawIndividualShadow(sideFill, coordinates["bO"], coordinates["bI"], coordinates["cI"], coordinates["cO"]);
-  this.drawIndividualShadow(bottomFill, coordinates["cO"], coordinates["cI"], coordinates["dI"], coordinates["dO"]);
-  this.drawIndividualShadow(sideFill, coordinates["dO"], coordinates["dI"], coordinates["aI"], coordinates["aO"]);
-}
+  this.drawIndividualShadow(topFill, coordinates.aO, coordinates.aI, coordinates.bI, coordinates.bO);
+  this.drawIndividualShadow(sideFill, coordinates.bO, coordinates.bI, coordinates.cI, coordinates.cO);
+  this.drawIndividualShadow(bottomFill, coordinates.cO, coordinates.cI, coordinates.dI, coordinates.dO);
+  this.drawIndividualShadow(sideFill, coordinates.dO, coordinates.dI, coordinates.aI, coordinates.aO);
+};
 
 Canvas.prototype.drawIndividualShadow = function(fillStyle, point1, point2, point3, point4) {
 
@@ -156,4 +155,5 @@ Canvas.prototype.drawIndividualShadow = function(fillStyle, point1, point2, poin
   
   ctx.fillStyle = fillStyle;
   ctx.fill();
-}
+};
+

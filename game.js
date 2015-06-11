@@ -1,5 +1,3 @@
-"use strict";
-
 var LEFT = -1;
 var RIGHT = 1;
 
@@ -27,9 +25,9 @@ function Game(height, width, level) {
   this.gotShape = false;
   this.clearedLines = 0;
   this.score = 0;
-  this.currentShape = "";
+  this.currentShape = null;
   this.dead = false;
-  this.interval;
+  this.interval = null;
   this.speed = 1000;
   this.newLevelFlag = true;
 }
@@ -49,7 +47,7 @@ Game.prototype.setPoint = function(row, col, item) {
 Game.prototype.getActiveBlockLocations =  function() {
   // Returns a list of row col location pairs for active blocks
   var blocks = [];
-  var bCount = 0
+  var bCount = 0;
   this.board.some(function(row, rowIndex) {
     row.forEach(function(col, colIndex) {
       if (col === "o" || col === "O") {
@@ -107,7 +105,7 @@ Game.prototype.transformBlocks = function(blockList, targetList) {
 };
 
 Game.prototype.step = function(objRef) {
-  // set objRef to pass to interval function.
+  // set this ref to work correctly with interval function.
   if (!objRef) {
     var objRef = this;
   }
@@ -148,7 +146,7 @@ var convertShape = function(block) {
   block.blockType = "X" + block.currentShape;
 
   return block;
-}
+};
 
 Game.prototype.newShape = function() {
   // Select shape
@@ -158,8 +156,9 @@ Game.prototype.newShape = function() {
     if (this.shapeList[i].name === type) {
       // Write shape to page from stored coordinate pairs (x=[0], y=[1])
       var chosenShape = this.shapeList[i];
-      chosenShape.startingCoordinates.forEach(function(point) {
-        
+
+      for (var j = 0; j < chosenShape.startingCoordinates.length; j++) {
+        var point = chosenShape.startingCoordinates[j];
         // Check death.
         if (this.getPoint(point[0], point[1]) !== ".") {
           this.dead = true;
@@ -167,7 +166,8 @@ Game.prototype.newShape = function() {
         }
         
         this.setPoint(point[0], point[1], "o");
-      }, this); 
+      }
+
       this.setPoint(chosenShape.pivot[0], chosenShape.pivot[1], "O");
       this.gotShape = true;
       return;
@@ -223,7 +223,7 @@ Game.prototype.increaseLevelCheck = function() {
     this.level += 1;
     this.newLevelFlag = true;
   }
-}
+};
 
 Game.prototype.moveSideways = function(transform) {
 
@@ -267,9 +267,9 @@ Game.prototype.rotate = function(direction) {
   var rotate = "";
   switch (this.currentShape) {
     case "I":
-    // Add code for 'proper' I rotation.ro
-      rotate = "I"
-      break
+    // Add code for 'proper' I rotation later
+      rotate = "I";
+      break;
     case "O":
       return;
     case "T":
@@ -381,13 +381,13 @@ Game.prototype.updateState = function() {
 
   this.canvas.redraw(resultString);
   displayCurrentInfo(this.level, this.score, this.clearedLines);
-}
+};
 
 Game.prototype.death = function() {
   console.log("You died!");
   gameOver();
 
-}
+};
 
 function createBoard(height, width) {
 
@@ -407,7 +407,7 @@ function createBoard(height, width) {
   }
   return board;
 
-};
+}
 
 function randomShape() {
   var shapeString = "IOTSZJL";
