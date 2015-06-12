@@ -3,7 +3,7 @@ var RIGHT = 1;
 
 // Shape object includes name, location of starting blocks,
 // and location of the pivot block.
-var shapes = [
+var SHAPES = [
     
     { name: "I", startingCoordinates: [[1, 3],[1, 5],[1, 6],], pivot: [1, 4] },
     { name: "O", startingCoordinates: [[0, 4],[0, 5],[1, 5],], pivot: [1, 4] },
@@ -21,7 +21,7 @@ function Game(height, width, level) {
   this.height = height;
   this.width = width;
   this.board = createBoard(height, width);
-  this.shapeList = shapes;
+  this.shapeList = SHAPES;
   this.gotShape = false;
   this.clearedLines = 0;
   this.score = 0;
