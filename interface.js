@@ -22,7 +22,9 @@ function displayCurrentInfo(level, score, lines) {
  info.appendChild(linesHolder);
 }
 
+
 function gameOver() {
+
   var gameOverHolder = document.createElement("div");
   var gameOverText = document.createTextNode("Game Over!");
   var button = document.createElement("div");
@@ -36,10 +38,15 @@ function gameOver() {
   button.appendChild(buttonText);
   canvas.appendChild(gameOverHolder);
   canvas.appendChild(button);
+
   button.addEventListener("click", function() {
+
     while (canvas.firstChild) {
+
       canvas.removeChild(canvas.firstChild);
     }
+
     run(20.0,10.0,0);
   });
+  
 }

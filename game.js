@@ -15,6 +15,7 @@ var SHAPES = [
     
 ];
 
+
 function Game(height, width, level) {
 
   this.level = level || 0;
@@ -32,70 +33,98 @@ function Game(height, width, level) {
   this.newLevelFlag = true;
 }
 
+
 Game.prototype.getPoint = function(row, col) {
+
   if (!this.board[row] || !this.board[0][col]) {
     return -1;
   }
   var itemAtCoordinates = this.board[row][col];
+
   return itemAtCoordinates;
 };
 
+
 Game.prototype.setPoint = function(row, col, item) {
+
   this.board[row][col] = item;
 };
 
+
 Game.prototype.getActiveBlockLocations =  function() {
+
   // Returns a list of row col location pairs for active blocks
   var blocks = [];
   var bCount = 0;
+
   this.board.some(function(row, rowIndex) {
+
     row.forEach(function(col, colIndex) {
+
       if (col === "o" || col === "O") {
-        blocks.push({row:rowIndex, col:colIndex, blockType:col, currentShape: this.currentShape});
+        blocks.push({row:rowIndex, col:colIndex, blockType:col,
+                      currentShape: this.currentShape});
         bCount += 1;
-      }  
+      }
+
     },this);
+
     return bCount === 4;
+
   }, this);
+
   return blocks;
 };
-// 25 15 05 06
+
+
 Game.prototype.getTargetLocations = function(blockList, f) {
+
   var targetList = blockList.map(f);
+
   return targetList;
 };
 
+
 Game.prototype.checkLegality = function(blockList) {
+
   // CHecks legality. Returns 'clear' or reason that move is illegal.
   var isLegal = "clear";
+
   blockList.some(function(block) {
+
     var itemAtPoint = this.getPoint(block.row, block.col);
+
     if (itemAtPoint === -1) {
 
       if (block.col < 0) {
         isLegal = "offLeft";
-        return false;
       } else if (block.col > this.width - 1) {
         isLegal = "offRight";
-        return false;
       } else {
         isLegal = "offBottom";
-        return false;
       }
+
+      return false;
 
     } else if (itemAtPoint.indexOf("X") > -1) {
       isLegal = "X";
+
       return false;
     }
+
   }, this);
+
   return isLegal;
 };
 
+
 Game.prototype.transformBlocks = function(blockList, targetList) {
+
   // Wipe previous location.
   blockList.forEach(function(block){
     this.setPoint(block.row, block.col, ".");
   }, this);
+
   // Set target location.
   targetList.forEach(function(block){
     this.setPoint(block.row, block.col, block.blockType);
@@ -104,17 +133,19 @@ Game.prototype.transformBlocks = function(blockList, targetList) {
   this.checkRows();
 };
 
+
 Game.prototype.step = function(objRef) {
+
   // set this ref to work correctly with interval function.
   if (!objRef) {
     var objRef = this;
   }
 
   objRef.checkRows();
+
   // Check for new shape or death.
   if (objRef.gotShape === false) {
     objRef.newShape();
-    
   }
 
   if (objRef.dead) {
@@ -123,6 +154,7 @@ Game.prototype.step = function(objRef) {
       objRef.death();
       return;
     }
+
     objRef.moveDown();
 
     objRef.updateState();
@@ -136,29 +168,27 @@ Game.prototype.step = function(objRef) {
       
       objRef.interval = setInterval(objRef.step, objRef.speed, objRef);
       objRef.newLevelFlag = false;
-
-  }
+    }
 
 };
 
-var convertShape = function(block) {
-  // Current shape needed to retain color after landing.
-  block.blockType = "X" + block.currentShape;
-
-  return block;
-};
 
 Game.prototype.newShape = function() {
+
   // Select shape
   var type = randomShape();
   this.currentShape = type;
+
   for (var i = 0; i < this.shapeList.length; i++) {
+
     if (this.shapeList[i].name === type) {
       // Write shape to page from stored coordinate pairs (x=[0], y=[1])
       var chosenShape = this.shapeList[i];
 
       for (var j = 0; j < chosenShape.startingCoordinates.length; j++) {
+
         var point = chosenShape.startingCoordinates[j];
+
         // Check death.
         if (this.getPoint(point[0], point[1]) !== ".") {
           this.dead = true;
@@ -172,63 +202,75 @@ Game.prototype.newShape = function() {
       this.gotShape = true;
       return;
     } 
+
   }
+
 };
 
+
 Game.prototype.checkRows = function() {
+
   // Check rows and apply scoring.
   var fullRow = true;
   var rowMulti = 0;
   var rowsCleared = false;
+  
   // Check for cleared rows.
-
-  this.board.forEach(function(row, rowIndex){
+  this.board.forEach(function(row, rowIndex) {
     fullRow = true;
 
     row.forEach(function(col){
+
       if (col.indexOf("X") === -1) {
         fullRow = false;
       }
+
     }, this);
 
     if (fullRow === true) {
       this.board.splice(rowIndex, 1);
       var newRow = [];
+
       for (var i = 0; i < this.width; i++){
         newRow.push(".");
       }
+
       rowsCleared = true;
       this.board.unshift(newRow);
       rowMulti += 1;
     }
 
   }, this);
+
   // Calculate score increase
   if (rowsCleared) {
     this.clearedLines += rowMulti;
     this.score += (rowMulti * 2) * 10 * (this.level + 1);
-    console.log(this.clearedLines % 10);
     this.increaseLevelCheck();
-
   }
+
 };
 
+
 Game.prototype.increaseLevelCheck = function() {
+
   var level = Math.floor(this.clearedLines / 10);
-  console.log("level: ", level);
-  console.log("this: ", this.level);
-  console.log(level > this.level);
+
   if (level > this.level) {
     this.speed *= 0.75;
     this.level += 1;
     this.newLevelFlag = true;
   }
+
 };
+
 
 Game.prototype.moveSideways = function(transform) {
 
   var blockList = this.getActiveBlockLocations();
+
   var targetList = this.getTargetLocations(blockList, function(block) {
+
     // Clone block.
     var newBlock = JSON.parse(JSON.stringify(block));
     newBlock.col += transform;
@@ -238,8 +280,10 @@ Game.prototype.moveSideways = function(transform) {
   if (this.checkLegality(targetList) === "clear") {
     this.transformBlocks(blockList, targetList);
     this.updateState();
-  }  
+  }
+
 };
+
 
 Game.prototype.moveDown = function() {
   var blockList = this.getActiveBlockLocations();
@@ -250,7 +294,9 @@ Game.prototype.moveDown = function() {
     newBlock.row += 1;
     return newBlock;
   });
+
   var isLegal = this.checkLegality(targetList);
+
   // Check legality then move or convert to landed.
   if (isLegal === "clear") {
     this.transformBlocks(blockList, targetList);
@@ -263,8 +309,16 @@ this.updateState();
   
 };
 
+
 Game.prototype.rotate = function(direction) {
+
+  // Declared here to prevent repetition
+  // Consider for general style?
   var rotate = "";
+  var pivotIndex;
+  var pivotYRow;
+  var pivotXCol;
+
   switch (this.currentShape) {
     case "I":
     // Add code for 'proper' I rotation later
@@ -279,24 +333,27 @@ Game.prototype.rotate = function(direction) {
     case "L":
       break;
   }
-  var pivotIndex;
-  var pivotYRow;
-  var pivotXCol;
 
   var blockList = this.getActiveBlockLocations();
+
   blockList.forEach(function(block, blockIndex) {
+
     if (block.blockType === "O") {
       pivotIndex = blockIndex;
       pivotYRow = block.row;
       pivotXCol = block.col;
     }
+
   });
 
   // Get  differences from pivot
   blockList.forEach(function(block, blockIndex){
+
     if (blockIndex !== pivotIndex) {
+
       var rowDifference = block.row - blockList[pivotIndex].row;
       var colDifference = block.col - blockList[pivotIndex].col;
+
       if (direction === "clockwise") {
         block.xColTransform = pivotXCol - rowDifference;
         block.yRowTransform = pivotYRow + colDifference;
@@ -304,12 +361,16 @@ Game.prototype.rotate = function(direction) {
         block.xColTransform = pivotXCol + rowDifference;
         block.yRowTransform = pivotYRow - colDifference;
       }
+
     }
+
   });
 
   var targetList = this.getTargetLocations(blockList, function(block) {
+
     if (!isNaN(block.xColTransform)) {
-      // SEPERATE INTO FUNCTION FOR CLARITY
+
+      // Seperate into function for clarity
       var newBlock = JSON.parse(JSON.stringify(block));
       newBlock.row = block.yRowTransform;
       newBlock.col = block.xColTransform;
@@ -317,10 +378,10 @@ Game.prototype.rotate = function(direction) {
     } else {
       return block;
     }
+
   });
 
-  // Kick to side if next to wall. Cancel if overlapping block
-  
+  // Kick to side if next to wall. Cancel if overlapping block 
   targetList = this.rotateCollisionHandler(targetList);
 
   // If handler has returned false, cancel rotation.
@@ -333,41 +394,57 @@ Game.prototype.rotate = function(direction) {
   this.updateState();
 };
 
+
 Game.prototype.rotateCollisionHandler = function(targetList) {
+
   var isLegal = this.checkLegality(targetList);
+
   if (isLegal !== "clear") {
 
       if (isLegal === "offLeft") {
+
         targetList = this.getTargetLocations(targetList, function(block) {
+
           var newBlock = JSON.parse(JSON.stringify(block));
           newBlock.col += 1;
           return newBlock;
         }, this);
+
         // Check again after 'kick'.
         return this.rotateCollisionHandler(targetList);
 
       } else if (isLegal === "offRight") {
+
         targetList = this.getTargetLocations(targetList, function(block) {
+
           var newBlock = JSON.parse(JSON.stringify(block));
           newBlock.col -= 1;
+
           return newBlock;
         }, this);
+
         return this.rotateCollisionHandler(targetList);
       }
 
       if (isLegal === "X") {
       return false;
     }
+
   }
+
   return targetList;
 };
+
 
 Game.prototype.updateState = function() {
 
   var resultString =  "";
+
   // row and column measured from top-left.
   this.board.forEach(function(row) {
+
     row.forEach(function(col){
+
       if (col[0] === ".") {
         resultString += "N";
       } else if (col[0] === "o" || col[0] === "O") {
@@ -375,19 +452,24 @@ Game.prototype.updateState = function() {
       } else if (col[0] === "X") {
         resultString += col[1];
       }
+
     }, this);
+
   }, this);
+
   // Better way to seperate view from logic?
 
   this.canvas.redraw(resultString);
   displayCurrentInfo(this.level, this.score, this.clearedLines);
 };
 
+
 Game.prototype.death = function() {
+
   console.log("You died!");
   gameOver();
-
 };
+
 
 function createBoard(height, width) {
 
@@ -395,29 +477,49 @@ function createBoard(height, width) {
   if (!height) {
     height = 22;
   }
+
   if (!width) {
     width = 10;
   }
+
   var board = [];
+
   for (var i = 0; i < height; i++) {
     board[i] = [];
+
     for (var j = 0; j < width; j++) {
       board[i][j] = '.';
     }
   }
+  
   return board;
-
 }
 
+
 function randomShape() {
+
   var shapeString = "IOTSZJL";
   var randNum = Math.floor(Math.random() * shapeString.length);
+
   return shapeString.charAt(randNum);
 }
 
+
+function convertShape(block) {
+
+  // Current shape needed to retain color after landing.
+  block.blockType = "X" + block.currentShape;
+
+  return block;
+};
+
+
 function addKeyboardControl(GameObject) {
+
   document.addEventListener("keydown", function(event){
+
     switch (event.keyCode) {
+
       case 37:
         GameObject.moveSideways(LEFT);
         break;
@@ -434,14 +536,19 @@ function addKeyboardControl(GameObject) {
         GameObject.moveDown();
         break;
     }
+
   });
+
 }
 
+
 function run(height, width, level, event) {
+
   height = 20;
   width = 10;
   level = 0;
   console.log("starting game");
+  
   var currentGame = new Game(height, width, level);
   currentGame.canvas = new Canvas(height, width);
   addKeyboardControl(currentGame);
