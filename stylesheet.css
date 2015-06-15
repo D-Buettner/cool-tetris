@@ -41,7 +41,7 @@ h1 {
 }
 
 li {
-      list-style-type: none;
+    list-style-type: none;
 }
 
 ul {
@@ -53,10 +53,10 @@ ul {
 }
 
 #game-controls {
-  border: 2px solid white;
-  border-radius: 4px;
-  margin-left: 2rem;
-  padding-right: 1rem;
+    border: 2px solid white;
+    border-radius: 4px;
+    margin-left: 2rem;
+    padding-right: 1rem;
 }
 
 #game-controls, #game-info {
@@ -65,23 +65,23 @@ ul {
 }
 
 #button {
-  cursor: pointer;
-  color: white;
-  position: relative;
-  top: -26rem;
-  background-color: hsla(212, 13.7%, 40%, 0.8);
-  display: inline-block;
-  padding: 0.1rem 2.5rem;
-  border: 2px solid #ffc989;
+    cursor: pointer;
+    color: white;
+    position: relative;
+    top: -26rem;
+    background-color: hsla(212, 13.7%, 40%, 0.8);
+    display: inline-block;
+    padding: 0.1rem 2.5rem;
+    border: 2px solid #ffc989;
 }
 
 #game-over {
-  position: relative;
-  top: -37.75rem;
-  font-family: "Oxygen";
-  font-size: 4.5rem;
-  background-color: hsla(212, 13.7%, 40%, 0.8);
-  margin-left: 49px;
-  margin-right: 50px;
-  padding: 0.5rem 0;
+    position: relative;
+    top: -37.75rem;
+    font-family: "Oxygen";
+    font-size: 4.5rem;
+    background-color: hsla(212, 13.7%, 40%, 0.8);
+    margin-left: 49px;
+    margin-right: 50px;
+    padding: 0.5rem 0;
 }
