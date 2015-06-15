@@ -69,7 +69,7 @@ ul {
   color: white;
   position: relative;
   top: -26rem;
-  background-color: hsla(212.1, 13.7%, 40%, 0.8);
+  background-color: hsla(212, 13.7%, 40%, 0.8);
   display: inline-block;
   padding: 0.1rem 2.5rem;
   border: 2px solid #ffc989;
@@ -80,8 +80,8 @@ ul {
   top: -37.75rem;
   font-family: "Oxygen";
   font-size: 4.5rem;
-  background-color: hsla(212.1, 13.7%, 40%, 0.8);
+  background-color: hsla(212, 13.7%, 40%, 0.8);
   margin-left: 49px;
   margin-right: 50px;
-  padding: 0.5rem 0rem;
+  padding: 0.5rem 0;
 }
